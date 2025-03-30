@@ -1,10 +1,19 @@
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import pygame
+from controllers.game_controller import GameController
+from views.menu_screen import MenuScreen  # Temporary, for test
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600))  # Test dimensions
+    pygame.display.set_caption("SamuelGame")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    controller = GameController(screen)  # Start controller with the test screen
+    controller.set_screen(MenuScreen())  # Start from menu
+    controller.run()  # Start loop
+
+    pygame.quit()  # Close game
+
+
+if __name__ == "__main__":
+    main()

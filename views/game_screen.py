@@ -14,25 +14,34 @@ class GameScreen(BaseScreen):
         self.play_theme(False)
         self.current_instrument = "piano"
         self.play_queue = []
-        # Game State Interface
+        # Game State
         self.round_image = pygame.image.load("assets/images/UI/score_banner.png").convert_alpha()
         self.round_image = pygame.transform.scale(self.round_image, (64, 64))
+        self.state.turn = "samuel"
+        self.can_act = False  # Flux control
 
-        # PLayer, Machine and timer display
+        # Timer for flux control
+        self.timer_duration = 0
+        self.timer_remaining = 0
+        self.timer_active = False
+
+        # PLayer and Machine
         color = (30, 30, 30)
-        self.ui_elements = {"you": {
-            "text": "You",
+        self.ui_elements = {"turn": {
+            "text": "Samuel's Turn",
             "color": color,
-            "pos": "topleft",
-            "coords": (20, 10)
-        }, "samuel": {
-            "text": "Samuel",
-            "color": color,
-            "pos": "topright",
-            "coords": (self.SCREEN_WIDTH - 20, 10)
+            "pos": "midtop",
+            "coords": (self.SCREEN_WIDTH // 2, 10),
         }}
 
-        self.timer = 0  # Timer for score and control
+        # Extra Score timer
+        self.MAX_BONUS = 100
+        self.TIME_FACTOR = 0.07
+        self.global_timer = 0
+        self.track_time = True
+
+        # Game Start
+        self.change_state()
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -41,17 +50,36 @@ class GameScreen(BaseScreen):
             for button in self.instrument_buttons + self.color_buttons:
                 if button["rect"].collidepoint(mouse_pos):
                     button["action"]()
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:  # Only for debug
-            self.end_game()
 
     # Check if there is something on queue to be played.
     def update(self, dt):
+
+        if self.track_time:
+            self.global_timer += dt
+
         if not self.sound.is_playing():
             self.set_all_buttons_ready()  # reset buttons images
 
-        if self.play_queue and not self.sound.is_playing():
+        if self.play_queue and not self.sound.is_playing() and self.can_act:
             next_color = self.play_queue.pop(0)
             self.play_color(next_color)
+
+        # Timer control
+        if self.timer_active:
+            self.timer_remaining -= dt
+
+            if self.timer_remaining <= 0:
+                self.timer_active = False
+                self.on_timer_end()
+
+        # After Demo
+        if self.state.turn == "samuel" and not self.play_queue and self.can_act:
+            self.change_state()
+
+        # After player turn
+        if self.state.is_round_complete() and self.can_act and not self.sound.is_playing():
+            self.sound.play_round_finished()
+            self.change_state()
 
     def render_content(self, screen):
         # Instrument buttons
@@ -142,7 +170,8 @@ class GameScreen(BaseScreen):
                 "name": color["name"],
                 "rect": rect,
                 "action": action,
-                "state": "ready"
+                "state": "ready",
+                "note": color["note"]
             })
 
         return buttons
@@ -158,10 +187,14 @@ class GameScreen(BaseScreen):
 
     def make_color_action(self, color):
         def action():
-            if self.sound.is_playing():
-                self.play_queue.append(color)
-            else:
-                self.play_color(color)
+            if self.can_act and self.state.turn == "player" and not self.state.is_round_complete():
+                if self.state.is_player_correct_so_far(color["name"]):
+                    if self.sound.is_playing():
+                        self.play_queue.append(color)
+                    else:
+                        self.play_color(color)
+                else:
+                    self.end_game()
 
         return action
 
@@ -183,5 +216,47 @@ class GameScreen(BaseScreen):
 
     # Game over call
     def end_game(self):
+        # Extra Score calculation
+        self.track_time = False
+        total_score = int((self.MAX_BONUS * self.state.score) * (1 / (1 + self.TIME_FACTOR * self.global_timer)))
+
         from views.game_over_screen import GameOverScreen
-        self.controller.set_screen(GameOverScreen(3))
+        self.controller.set_screen(GameOverScreen(total_score))
+
+    # Game logic
+    def round_start(self):
+        self.state.turn = "samuel"
+        self.state.generate_next_round()
+        self.play_queue = []
+        for color_name in self.state.sequence:
+            for button in self.color_buttons:
+                if color_name == button["name"]:
+                    self.play_queue.append(button)
+
+    def start_timer(self, duration):
+        self.timer_duration = duration
+        self.timer_remaining = duration
+        self.timer_active = True
+
+    def on_timer_end(self):
+        if self.state.get_turn_state() == "start_round":
+            self.round_start()
+            self.change_state()
+        if self.state.get_turn_state() == "play_demo":
+            self.can_act = True
+        if self.state.get_turn_state() == "demo_finished":
+            self.state.turn = "player"
+            self.change_state()
+        if self.state.get_turn_state() == "player_turn":
+            self.play_queue = []
+            self.ui_elements["turn"]["text"] = "Your turn"
+            self.can_act = True
+        if self.state.get_turn_state() == "end_player_turn":
+            self.state.turn = "samuel"
+            self.ui_elements["turn"]["text"] = "Samuel's Turn"
+            self.change_state()
+
+    def change_state(self):
+        self.can_act = False
+        self.state.next_state()
+        self.start_timer(0.2)

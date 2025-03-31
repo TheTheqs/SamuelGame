@@ -1,5 +1,6 @@
 from views.base_screen import BaseScreen
 from models.score_manager import ScoreManager
+from models.sound_manager import SoundManager
 import pygame
 
 
@@ -8,10 +9,13 @@ class GameOverScreen(BaseScreen):
         super().__init__()
         self.escore_manager = ScoreManager()
         self.final_score = final_score
+        self.play_theme(False)
         self.input_text = ""
         self.input_active = True
         self.input_max_length = 8
         self.input_placeholder = "Player"
+        self.sound = SoundManager()
+        self.sound.play_fail()
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and self.input_active:

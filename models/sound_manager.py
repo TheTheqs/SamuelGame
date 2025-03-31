@@ -10,6 +10,9 @@ class SoundManager:
         self.sounds = {}
         self.instrument = instrument
         self.load_sounds()
+        # For FX
+        self.effects = {}
+        self.load_effects()
 
     # Play instrument
     def load_sounds(self):
@@ -34,3 +37,15 @@ class SoundManager:
 
     def is_playing(self):
         return self.last_channel is not None and self.last_channel.get_busy()
+
+    # FX load
+    def load_effects(self):
+        fx_path = "assets/sounds/system"
+        self.effects["round_finished"] = pygame.mixer.Sound(os.path.join(fx_path, "round_finished.wav"))
+        self.effects["fail"] = pygame.mixer.Sound(os.path.join(fx_path, "fail.wav"))
+
+    def play_round_finished(self):
+        self.effects["round_finished"].play()
+
+    def play_fail(self):
+        self.effects["fail"].play()

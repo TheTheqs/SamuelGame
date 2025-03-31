@@ -4,10 +4,10 @@ import pygame
 
 class MenuScreen(BaseScreen):
     def __init__(self):
+        super().__init__()
         # Buttons banners
         self.button_image = pygame.image.load("assets/images/UI/menu_banner.png").convert_alpha()
         self.title_image = pygame.image.load("assets/images/UI/title_banner.png").convert_alpha()
-        super().__init__()
         # Buttons config
         self.menu_options = [
             {"text": "Samuel Game!", "y": 70, "action": lambda: None},
@@ -16,8 +16,8 @@ class MenuScreen(BaseScreen):
             {"text": "Exit", "y": 450, "action": lambda: setattr(self.controller, "running", False)},
         ]
         self.buttons = []
-
-        self.font = pygame.font.Font("assets/fonts/font.ttf", 30)  # font Load
+        # Star theme song
+        self.play_theme(True)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -30,9 +30,7 @@ class MenuScreen(BaseScreen):
     def update(self, dt):
         pass
 
-    def render(self, screen):
-        screen.fill((0, 0, 0))  # Background
-
+    def render_content(self, screen):
         self.buttons.clear()  # Reset button list
 
         for i, option in enumerate(self.menu_options):

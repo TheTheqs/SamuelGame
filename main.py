@@ -5,7 +5,7 @@ from views.menu_screen import MenuScreen  # Temporary, for test
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))  # Test dimensions
+    screen = pygame.display.set_mode((800, 600))  # Dimensions
     pygame.display.set_caption("SamuelGame")
 
     controller = GameController(screen)  # Start controller with the test screen

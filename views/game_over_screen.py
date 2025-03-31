@@ -17,7 +17,7 @@ class GameOverScreen(BaseScreen):
     def update(self, dt):
         pass
 
-    def render(self, screen):
+    def render_content(self, screen):
         screen.fill((100, 0, 0))
         font = pygame.font.SysFont(None, 40)
         text = font.render(f"Game Over! Score: {self.final_score}", True, (255, 255, 255))

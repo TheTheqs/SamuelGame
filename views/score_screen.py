@@ -17,7 +17,7 @@ class ScoreScreen(BaseScreen):
     def update(self, dt):
         pass
 
-    def render(self, screen):
+    def render_content(self, screen):
         screen.fill((0, 0, 0))
         font = pygame.font.SysFont(None, 40)
         text1 = font.render("No saved score yet", True, (255, 255, 255))

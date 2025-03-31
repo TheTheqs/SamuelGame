@@ -34,7 +34,8 @@ class MenuScreen(BaseScreen):
         self.buttons.clear()  # Reset button list
 
         for i, option in enumerate(self.menu_options):
-            text_surface = self.font.render(option["text"], True, (30, 30, 30))
+            text_surface = self.font.render(option["text"], True, (30, 30, 30)) if i != 0 else (
+                self.title_font.render(option["text"], True, (30, 30, 30)))
             y = option["y"]
 
             rect = text_surface.get_rect(centerx=self.SCREEN_WIDTH // 2, y=y)
@@ -59,4 +60,4 @@ class MenuScreen(BaseScreen):
         if command == 1:
             self.controller.set_screen(GameScreen())
         else:
-            self.controller.set_screen(ScoreScreen([]))
+            self.controller.set_screen(ScoreScreen())

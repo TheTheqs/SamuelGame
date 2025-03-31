@@ -11,6 +11,8 @@ class BaseScreen:
         self.SCREEN_HEIGHT = 600  # H and W from children class usage
         self.background = pygame.image.load("assets/images/background/background.png").convert()  # Background
         self.font = pygame.font.Font("assets/fonts/font.ttf", 30)  # font Load
+        self.title_font = pygame.font.Font("assets/fonts/font.ttf", 40)
+        self.footer_font = pygame.font.Font("assets/fonts/font.ttf", 20)
 
     @abstractmethod
     def handle_event(self, event):

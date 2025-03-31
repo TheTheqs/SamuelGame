@@ -41,6 +41,8 @@ class GameScreen(BaseScreen):
             for button in self.instrument_buttons + self.color_buttons:
                 if button["rect"].collidepoint(mouse_pos):
                     button["action"]()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:  # Only for debug
+            self.end_game()
 
     # Check if there is something on queue to be played.
     def update(self, dt):
@@ -178,3 +180,8 @@ class GameScreen(BaseScreen):
         for button in self.color_buttons:
             if button["name"] == color:
                 button["state"] = "pressed"
+
+    # Game over call
+    def end_game(self):
+        from views.game_over_screen import GameOverScreen
+        self.controller.set_screen(GameOverScreen(3))

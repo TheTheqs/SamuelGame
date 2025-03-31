@@ -1,26 +1,50 @@
 from views.base_screen import BaseScreen
+from models.score_manager import ScoreManager
 import pygame
 
 
 class GameOverScreen(BaseScreen):
     def __init__(self, final_score):
-        print("Entering game over screen...")
         super().__init__()
+        self.escore_manager = ScoreManager()
         self.final_score = final_score
+        self.input_text = ""
+        self.input_active = True
+        self.input_max_length = 8
+        self.input_placeholder = "Player"
 
-    def handle_event(self, event):  # Pressing enter get the player back to menu/ Will be not dealing with db saving
-        # score in test phase
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-            from views.menu_screen import MenuScreen
-            self.controller.set_screen(MenuScreen())
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN and self.input_active:
+            if event.key == pygame.K_BACKSPACE:
+                self.input_text = self.input_text[:-1]
+            elif event.key == pygame.K_RETURN:
+                print(f"Saving score: {self.final_score} for {self.input_text or self.input_placeholder}")
+                self.back_to_menu()
+            elif len(self.input_text) < self.input_max_length:
+                if event.unicode.isalnum() or event.unicode == " ":
+                    self.input_text += event.unicode
 
     def update(self, dt):
         pass
 
     def render_content(self, screen):
-        screen.fill((100, 0, 0))
-        font = pygame.font.SysFont(None, 40)
-        text = font.render(f"Game Over! Score: {self.final_score}", True, (255, 255, 255))
-        text2 = font.render("Press ENTER to return to menu", True, (255, 255, 255))
-        screen.blit(text, (200, 250))
-        screen.blit(text2, (200, 300))
+        elements = ["GAME OVER", f"Score: {self.final_score}", "Type your name!"]
+
+        # Input
+        display_input = self.input_text if self.input_text else self.input_placeholder
+        elements.append(f"[ {display_input} ]")
+
+        spacing = 80
+        total_height = len(elements) * spacing
+        start_y = (self.SCREEN_HEIGHT - total_height) // 2
+
+        for i, text in enumerate(elements):
+            color = (30, 30, 30) if not (text.startswith("[") and self.input_text == "") else (150, 150, 150)
+            surface = self.font.render(text, True, color) if i != 0 else (
+                self.title_font.render(text, True, color))
+            rect = surface.get_rect(center=(self.SCREEN_WIDTH // 2, start_y + i * spacing))
+            screen.blit(surface, rect)
+
+    def back_to_menu(self):
+        from views.menu_screen import MenuScreen
+        self.controller.set_screen(MenuScreen())

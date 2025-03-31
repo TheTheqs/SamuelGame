@@ -218,7 +218,7 @@ class GameScreen(BaseScreen):
     def end_game(self):
         # Extra Score calculation
         self.track_time = False
-        total_score = int((self.MAX_BONUS * self.state.score) * (1 / (1 + self.TIME_FACTOR * self.global_timer)))
+        total_score = int((self.MAX_BONUS * (self.state.score - 1)) * (1 / (1 + self.TIME_FACTOR * self.global_timer)))
 
         from views.game_over_screen import GameOverScreen
         self.controller.set_screen(GameOverScreen(total_score))

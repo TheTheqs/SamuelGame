@@ -7,7 +7,7 @@ import pygame
 class GameOverScreen(BaseScreen):
     def __init__(self, final_score):
         super().__init__()
-        self.escore_manager = ScoreManager()
+        self.score_manager = ScoreManager()
         self.final_score = final_score
         self.play_theme(False)
         self.input_text = ""
@@ -22,7 +22,7 @@ class GameOverScreen(BaseScreen):
             if event.key == pygame.K_BACKSPACE:
                 self.input_text = self.input_text[:-1]
             elif event.key == pygame.K_RETURN:
-                print(f"Saving score: {self.final_score} for {self.input_text or self.input_placeholder}")
+                self.score_manager.save_score(self.input_text or self.input_placeholder, self.final_score)
                 self.back_to_menu()
             elif len(self.input_text) < self.input_max_length:
                 if event.unicode.isalnum() or event.unicode == " ":

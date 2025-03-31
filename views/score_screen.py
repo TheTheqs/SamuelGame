@@ -18,8 +18,7 @@ class ScoreScreen(BaseScreen):
         pass
 
     def render_content(self, screen):
-        title_font = pygame.font.SysFont(None, 48)
-
+        vertical_offset = -50
         try:
             scores = self.scores.get_top_scores(10)
         except Exception as e:
@@ -32,20 +31,20 @@ class ScoreScreen(BaseScreen):
             msg_rect = msg.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2))
             screen.blit(msg, msg_rect)
         else:
-            title = title_font.render("Top Scores", True, (30, 30, 30))
-            title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, 80))
+            title = self.title_font.render("Top Scores", True, (30, 30, 30))
+            title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, 80 + vertical_offset))
             screen.blit(title, title_rect)
 
             headers = ["RANK", "NAME", "SCORE"]
             header_positions = [200, 400, 600]
             for i, h in enumerate(headers):
                 header_text = self.font.render(h, True, (30, 30, 30))
-                header_rect = header_text.get_rect(center=(header_positions[i], 140))
+                header_rect = header_text.get_rect(center=(header_positions[i], 140 + vertical_offset))
                 screen.blit(header_text, header_rect)
 
             # Building list
             for i, (name, score) in enumerate(scores):
-                y = 180 + i * 40
+                y = 180 + i * 40 + vertical_offset
 
                 rank_text = self.font.render(str(i + 1), True, (30, 30, 30))
                 name_text = self.font.render(name, True, (30, 30, 30))

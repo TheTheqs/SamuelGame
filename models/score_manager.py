@@ -26,6 +26,8 @@ class ScoreManager:
 
     # Save new Score
     def save_score(self, name, score):
+        if not name or name == "":
+            name = "Player"
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO scores (name, score, date) VALUES (?, ?, ?)",
